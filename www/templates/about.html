@@ -1,0 +1,19 @@
+<ion-view view-title="About">
+	<ion-content style="padding-top:10px;" ng-init="getQuote()">
+		<div class="list card">
+			<div class="item item-body item-icon-right">
+				<h2>An app for following some popular greek blogs.<br/>Thanks for downloading!</h2>
+				<i class="icon ion-happy-outline"></i>
+			</div>
+			<div class="item item-body">
+				<blockquote ng-bind-html="quote"></blockquote>
+				<img class="full-image" src="img/blogs-android.jpg">
+			</div>
+		</div>
+		<div class="bar bar-footer bar-energized item item-avatar item-avatar-left">
+			<img src="img/nein.jpg"/>
+			<h2>Bouchlis Charalampos</h2>
+			<p style="color:#666">mpouxlhs_xar@yahoo.gr</p>
+		</div>
+	</ion-content>
+</ion-view>

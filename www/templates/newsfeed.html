@@ -1,0 +1,15 @@
+<ion-view view-title="{{blogTitle}}">
+	<ion-content style="padding-top:10px;margin-bottom:25px;" ng-init="init()">
+		<ion-refresher pulling-text="Pull to refresh" on-refresh="init()"></ion-refresher>
+		
+		<div class="list">
+			<a ng-repeat="entry in entries" class="item-text-wrap item-animate" ng-class="itemClass(entry)" ng-click="itemClick(entry)">
+				<img ng-show="!entry.expanded" ng-src="{{entry.mediaGroups[0].contents[1].url || entry.mediaGroups[0].contents[0].url}}"/>
+				<i class="icon ion-link" ng-click="browse(entry.link)"></i>
+				<h2 style="margin-bottom:10px;">{{entry.title}}</h2>
+				<p class="animate-show" ng-show="entry.expanded" ng-bind-html="entry.content"></p> 
+				<h6>{{entry.publishedDate}}</h6>
+			</a>
+		</div>
+	</ion-content>
+</ion-view>

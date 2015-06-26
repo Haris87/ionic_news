@@ -1,0 +1,14 @@
+<ion-view view-title="Blog List">
+	<ion-content style="padding-top:10px;margin-bottom:25px;" ng-init="init()">
+		<pre>{{allDocs}}</pre>
+		<div class="list">
+			<a ng-repeat="blog in blogs" class="item item-text-wrap item-icon-right item-thumbnail-left" ng-click="toNewsfeed(blog)">
+				<img ng-src="{{blog.image}}"/>
+				<h1>{{blog.title}}</h1>
+				<p>{{blog.siteUrl}}</p>
+				<i class="icon ion-chevron-right"></i>
+			</a>
+		</div>
+
+	</ion-content>
+</ion-view>
