@@ -22,7 +22,8 @@ $stateProvider
 });
 
 rssApp.controller("BlogsController", function($http, $state, $scope, FeedService, pouchDB) {
-	
+
+/*	
 	var db = pouchDB('db');
 	var doc = {name: 'Haris', surname: 'Bouchlis', age: '28'};
 
@@ -52,7 +53,7 @@ rssApp.controller("BlogsController", function($http, $state, $scope, FeedService
 			$scope.allDocs.push(row_doc);
 		}
 	});
-
+*/
 	
 	$scope.init = function(){
 		$scope.blogs = FeedService.getBlogs();
