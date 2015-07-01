@@ -21,191 +21,175 @@ $stateProvider
   $urlRouterProvider.otherwise('/blogs');
 });
 
-rssApp.controller("BlogsController", function($http, $state, $scope, FeedService, pouchDB) {
+rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, FeedService, pouchDB) {
+	$ionicPlatform.ready(function() {
+		$ionicLoading.hide();
 
-/*	
-	var db = pouchDB('db');
-	var doc = {name: 'Haris', surname: 'Bouchlis', age: '28'};
-
-	db.post(doc).then(function (res) {
-		if (!res.ok) {
-			return error(res);
+		$scope.init = function(){
+			$scope.blogs = FeedService.getBlogs();
 		}
-		alert('post');
-		return db.get(res.id);
-	}).then(function (res) {
-		$scope.doc = res;
-		console.log(res);
-		alert('bind');
-	}).catch(function (err) {
-		$log.error(err);
-		alert('error');
+		
+		$scope.toNewsfeed = function(blog){
+			console.log(blog);
+			var blogs = FeedService.getBlogs();
+			var blogId = arrayObjectIndexOf(blogs, blog);
+			$state.go('newsfeed', { blogId: blogId});
+		}
+		
+		function arrayObjectIndexOf(arr, obj){
+			for(var i = 0; i < arr.length; i++){
+				if(angular.equals(arr[i], obj)){
+					return i;
+				}
+			};
+			return -1;
+		}
+
 	});
 
-	$scope.allDocs = [];
+});
 
-	db.allDocs({include_docs:true}).then(function (res){
-		//console.log(res);
-		for(var i=0; i<res.total_rows; i++){
-			var row = res.rows[i];
-			var row_doc = row.doc;
-			console.log(row_doc);
-			$scope.allDocs.push(row_doc);
+rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, TitleService) {
+	$ionicPlatform.ready(function() {
+		$ionicLoading.hide();
+
+		$scope.toAbout = function(){
+			$state.go('about');
+		}
+		
+		$scope.toBlogs = function(){
+			$state.go('blogs');
+		}
+		
+		$scope.getTitle = function(){
+			$scope.title = TitleService.getTitle();
+			console.log(TitleService.getTitle());
+			if($scope.title == null){
+				$scope.title = "News Lite";
+			}
+		}
+		
+		$scope.getTitle();
+	});
+
+});
+
+rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatform, $ionicLoading) {
+	$ionicPlatform.ready(function() {
+		$ionicLoading.hide();
+
+		$scope.getQuote = function(){
+			$http.get('http://www.iheartquotes.com/api/v1/random', { params: { "source":"news"}})
+			.success(function(data, status, headers, config) {
+				var quote = data.split("[fortune]"); 
+				$scope.quote = quote[0];
+			})
+			.error(function(data, status, headers, config) {
+				$scope.quote = 	"The only qualities for real success in journalism are ratlike cunning, a "+
+								"plausible manner and a little literary ability.  The capacity to steal "+
+								"other people's ideas and phrases ... is also invaluable. "+
+								"-- Nicolas Tomalin, &quot;Stop the Press, I Want to Get On&quot;";
+			});
 		}
 	});
-*/
-	
-	$scope.init = function(){
-		$scope.blogs = FeedService.getBlogs();
-	}
-	
-	$scope.toNewsfeed = function(blog){
-		console.log(blog);
-		var blogs = FeedService.getBlogs();
-		var blogId = arrayObjectIndexOf(blogs, blog);
-		$state.go('newsfeed', { blogId: blogId});
-	}
-	
-	function arrayObjectIndexOf(arr, obj){
-		for(var i = 0; i < arr.length; i++){
-			if(angular.equals(arr[i], obj)){
-				return i;
-			}
-		};
-		return -1;
-	}
-
 });
 
-rssApp.controller("HeaderController", function($http, $state, $scope, TitleService) {
-	$scope.toAbout = function(){
-		$state.go('about');
-	}
-	
-	$scope.toBlogs = function(){
-		$state.go('blogs');
-	}
-	
-	$scope.getTitle = function(){
-		$scope.title = TitleService.getTitle();
-		if($scope.title == null){
-			$scope.title = "Nein News";
-		}
-	}
-	
-	//alert($cordovaNetwork.getNetwork());
+rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoading, $cordovaInAppBrowser, $stateParams, $ionicPlatform, FeedService, TitleService) {
+	$ionicPlatform.ready(function() {
+		$ionicLoading.hide();
 
-});
-
-rssApp.controller("AboutController", function($http, $state, $scope) {
-	$scope.getQuote = function(){
-		$http.get('http://www.iheartquotes.com/api/v1/random', { params: { "source":"news"}})
-		.success(function(data, status, headers, config) {
-			var quote = data.split("[fortune]"); 
-			$scope.quote = quote[0];
-		})
-		.error(function(data, status, headers, config) {
-			$scope.quote = 	"The only qualities for real success in journalism are ratlike cunning, a "+
-							"plausible manner and a little literary ability.  The capacity to steal "+
-							"other people's ideas and phrases ... is also invaluable. "+
-							"-- Nicolas Tomalin, &quot;Stop the Press, I Want to Get On&quot;";
-		});
-	}
-});
-
-rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoading, $cordovaInAppBrowser, $stateParams, FeedService, TitleService) {
-	$scope.feedSrc = [];
-	var blogId = 0;
-	
-    $scope.init = function() {
-		blogId = $stateParams.blogId;
-		$scope.feedSrc = FeedService.getBlogs();
-		$scope.blogTitle = $scope.feedSrc[blogId].title;
-		TitleService.setTitle($scope.blogTitle);
-		console.log($scope.blogTitle);
-		$scope.getFeed();
-    }
-	
-	$scope.itemAvatar = "item item-avatar item-avatar-left item-icon-right";
-	$scope.itemNoImage = "item item-icon-right";
-
-	$scope.itemClass = function(entry){
-		if(entry.expanded){
-			return $scope.itemNoImage;
-		}
-	
-		if(entry.hasOwnProperty('mediaGroups')){
-			return $scope.itemAvatar;
-		} else {
-			return $scope.itemNoImage;
-		}
-	}
+		$scope.feedSrc = [];
+		var blogId = 0;
 		
-	$scope.getFeed = function(){
-		$ionicLoading.show({
-			template: 'Loading feed...'
-		});
-		$scope.blogTitle = $scope.feedSrc[blogId].title;
-        $http.get("http://ajax.googleapis.com/ajax/services/feed/load", { params: { "v": "1.0", "q": $scope.feedSrc[blogId].feedUrl, "num": "50" } })
-		.success(function(data, status, headers, config) {
-			$scope.rssTitle = data.responseData.feed.title;
-			$scope.rssUrl = data.responseData.feed.feedUrl;
-			$scope.rssSiteUrl = data.responseData.feed.link;
-			$scope.entries = data.responseData.feed.entries;
-			
-			for(var i=0; i<$scope.entries.length; i++){
-				$scope.entries[i].text = "";
-				$scope.entries[i].slideDown = true;
-			}
-			$ionicLoading.hide();
-			$scope.$broadcast('scroll.refreshComplete');
-		})
-		.error(function(data, status, headers, config) {
-			$scope.loadBrowserFeed();
-			$scope.$broadcast('scroll.refreshComplete');
-			$ionicLoading.hide();
-		});	
-	}
-	
-	$scope.browse = function(v) {
-		var options = {
-			location: 'no',
-			clearcache: 'no',
-			toolbar: 'yes'
-		};
+	    $scope.init = function() {
+			blogId = $stateParams.blogId;
+			$scope.feedSrc = FeedService.getBlogs();
+			$scope.blogTitle = $scope.feedSrc[blogId].title;
+			TitleService.setTitle($scope.blogTitle);
+			$scope.getFeed();
+	    }
 		
-		$cordovaInAppBrowser.open(v, '_blank', options)
-		.then(function(event){})
-		.catch(function(event){});
-	}
-	
-	$scope.itemClick = function(entry){
-		entry.expanded = !entry.expanded;
-		// if(entry.expanded){
-			// entry.expanded = false;
-		// } else {
-			// entry.expanded = true;
-		// }
-	}
-	
-	$scope.loadBrowserFeed = function(){  
-		$scope.blogTitle = $scope.feedSrc[blogId].title;
-        FeedService.parseFeed($scope.feedSrc[blogId].feedUrl).then(function(res){
-			$scope.rssTitle = res.data.responseData.feed.title;
-			$scope.rssUrl = res.data.responseData.feed.feedUrl;
-			$scope.rssSiteUrl = res.data.responseData.feed.link;
-			$scope.entries = res.data.responseData.feed.entries;
-			
-			for(var i=0; i<$scope.entries.length; i++){
-				$scope.entries[i].text = "";
-				$scope.entries[i].slideDown = true;
+		$scope.itemAvatar = "item item-avatar item-avatar-left item-icon-right";
+		$scope.itemNoImage = "item item-icon-right";
+
+		$scope.itemClass = function(entry){
+			if(entry.expanded){
+				return $scope.itemNoImage;
 			}
-			$scope.$broadcast('scroll.refreshComplete');
-			$timeout(function(){
-				$scope.$apply();
-			}, 1);
-        });
-    }
+		
+			if(entry.hasOwnProperty('mediaGroups')){
+				return $scope.itemAvatar;
+			} else {
+				return $scope.itemNoImage;
+			}
+		}
+			
+		$scope.getFeed = function(){
+			$ionicLoading.show({
+				template: 'Loading feed...'
+			});
+			$scope.blogTitle = $scope.feedSrc[blogId].title;
+	        $http.get("http://ajax.googleapis.com/ajax/services/feed/load", { params: { "v": "1.0", "q": $scope.feedSrc[blogId].feedUrl, "num": "50" } })
+			.success(function(data, status, headers, config) {
+				$scope.rssTitle = data.responseData.feed.title;
+				$scope.rssUrl = data.responseData.feed.feedUrl;
+				$scope.rssSiteUrl = data.responseData.feed.link;
+				$scope.entries = data.responseData.feed.entries;
+				
+				for(var i=0; i<$scope.entries.length; i++){
+					$scope.entries[i].text = "";
+					$scope.entries[i].slideDown = true;
+				}
+				$ionicLoading.hide();
+				$scope.$broadcast('scroll.refreshComplete');
+			})
+			.error(function(data, status, headers, config) {
+				$scope.loadBrowserFeed();
+				$scope.$broadcast('scroll.refreshComplete');
+				$ionicLoading.hide();
+			});	
+		}
+		
+		$scope.browse = function(v) {
+			var options = {
+				location: 'no',
+				clearcache: 'no',
+				toolbar: 'yes'
+			};
+			
+			$cordovaInAppBrowser.open(v, '_blank', options)
+			.then(function(event){})
+			.catch(function(event){});
+		}
+		
+		$scope.itemClick = function(entry){
+			entry.expanded = !entry.expanded;
+			// if(entry.expanded){
+				// entry.expanded = false;
+			// } else {
+				// entry.expanded = true;
+			// }
+		}
+		
+		$scope.loadBrowserFeed = function(){  
+			$scope.blogTitle = $scope.feedSrc[blogId].title;
+	        FeedService.parseFeed($scope.feedSrc[blogId].feedUrl).then(function(res){
+				$scope.rssTitle = res.data.responseData.feed.title;
+				$scope.rssUrl = res.data.responseData.feed.feedUrl;
+				$scope.rssSiteUrl = res.data.responseData.feed.link;
+				$scope.entries = res.data.responseData.feed.entries;
+				
+				for(var i=0; i<$scope.entries.length; i++){
+					$scope.entries[i].text = "";
+					$scope.entries[i].slideDown = true;
+				}
+				$scope.$broadcast('scroll.refreshComplete');
+				$timeout(function(){
+					$scope.$apply();
+				}, 1);
+	        });
+	    }
+	});
  
 });
 
@@ -219,6 +203,7 @@ rssApp.factory('TitleService', function(){
 			title = newTitle;
 		}
     }
+
 });
 
 rssApp.factory('FeedService',['$http',function($http){
@@ -228,27 +213,24 @@ rssApp.factory('FeedService',['$http',function($http){
         },
 		getBlogs : function(){
 			var feedSrc = [];
-			feedSrc.push({feedUrl:"http://feeds.feedburner.com/tokoulouri/rss", siteUrl: "tokoulouri.com", title: "To Koulouri", image: "img/koulouri.png"});
-			feedSrc.push({feedUrl:"http://olympia.gr/feed/", siteUrl: "olympia.gr", title: "Olympia", image: "img/olympia.jpeg"});
-			feedSrc.push({feedUrl:"http://www.pinnokio.gr/rss", siteUrl: "pinnokio.gr", title: "Pinnokio", image: "img/pinnokio.png"});
-			feedSrc.push({feedUrl:"http://kourdistoportocali.com/feeds/xml/latest.xml",  siteUrl: "kourdistoportocali.com", title: "Kourdisto Portokali", image: "img/kourdistoportokali.png"});
-			feedSrc.push({feedUrl:"http://feeds.feedburner.com/trelokouneli/YZEp", siteUrl: "trelokouneli.gr", title: "Trello Kouneli", image: "img/trellokouneli.png"});
-			feedSrc.push({feedUrl:"http://www.antinews.gr/feed/", siteUrl: "antinews.gr", title: "Antinews", image: "img/antinews.png"});
-			feedSrc.push({feedUrl:"http://feeds.feedburner.com/Voliotaki", siteUrl: "voliotaki.blogspot.gr", title: "Voliotaki", image: "img/voliotaki.jpg"});
-			// feedSrc.push({feedUrl:"http://www.alexiptoto.com/feed/", title: "Alexiptoto", image: "img/alexiptoto.png"});
-			// feedSrc.push({feedUrl:"http://antikleidi.com/feed", title: "Antikleidi", image: "img/antikleidi.png"});
-			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/blogspot/Rnkws", title: "Dexi x-Trem(i)"});
-			// feedSrc.push({feedUrl:"http://apocalypsejohn.com/feed", title: "Apocalypse"});
-			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/autoblog/feed", title: "Autoblog"});
-			// feedSrc.push({feedUrl:"http://www.neolaia.gr/feed/", title: "Neolaia.gr"});
-			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/feedburner/rVOU", title: "The Secret Real Truth"});
-			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/blogspot/BBfGP", title: "24oro"});
-			// feedSrc.push({feedUrl:"http://anemosantistasis.blogspot.com/feeds/posts/default", title: "Anemos Antistasis"});
-			// feedSrc.push({feedUrl:"http://kranosgr.blogspot.com/feeds/posts/default", title: "KRANOSGR"});			
-			// feedSrc.push({feedUrl:"http://fimotro.blogspot.com/feeds/posts/default", title: "Fimotro"});
-			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/blogspot/OTsvU", title: "Epirus Gate"});
-			// feedSrc.push({feedUrl:"http://www.katohika.gr/feeds/posts/default", title: "Katoxika"});
-			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/nonews-news", title: "No News"});			
+			feedSrc.push({feedUrl:"http://news.yahoo.com/rss/", siteUrl: "new.yahoo.com", title: "Yahoo! News", image: "img/logos/yahoo.jpeg"});
+			feedSrc.push({feedUrl:"http://rss.cnn.com/rss/edition_world.rss", siteUrl: "cnn.com", title: "CNN News", image: "img/logos/cnn.png"});
+			feedSrc.push({feedUrl:"http://www.huffingtonpost.com/feeds/index.xml", siteUrl: "huffingtonpost.com", title: "The Huffington Post", image: "img/logos/huffington.png"});
+			feedSrc.push({feedUrl:"http://rss.nytimes.com/services/xml/rss/nyt/World.xml", siteUrl: "nytimes.com", title: "The New York Times", image: "img/logos/nytimes.png"});
+			feedSrc.push({feedUrl:"https://news.google.com/news?output=rss", siteUrl: "news.google.com", title: "Google News", image: "img/logos/google.png"});
+			feedSrc.push({feedUrl:"http://feeds.bbci.co.uk/news/world/rss.xml", siteUrl: "bbc.com", title: "BBC News", image: "img/logos/bbc.jpg"});
+			feedSrc.push({feedUrl:"http://feeds.foxnews.com/foxnews/world", siteUrl: "foxnews.com", title: "FOX News", image: "img/logos/foxnews.jpg"});
+			feedSrc.push({feedUrl:"http://feeds.washingtonpost.com/rss/world", siteUrl: "washingtonpost.com", title: "The Washington Post", image: "img/logos/washington.png"});
+			feedSrc.push({feedUrl:"http://www.theguardian.com/world/rss", siteUrl: "theguardian.com", title: "The Guardian", image: "img/logos/guardian.jpg"});
+			feedSrc.push({feedUrl:"http://www.reddit.com/r/news/.rss", siteUrl: "reddit.com", title: "Reddit", image: "img/logos/reddit.png"});
+			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/tokoulouri/rss", siteUrl: "tokoulouri.com", title: "To Koulouri", image: "img/koulouri.png"});
+			// feedSrc.push({feedUrl:"http://olympia.gr/feed/", siteUrl: "olympia.gr", title: "Olympia", image: "img/olympia.jpeg"});
+			// feedSrc.push({feedUrl:"http://www.pinnokio.gr/rss", siteUrl: "pinnokio.gr", title: "Pinnokio", image: "img/pinnokio.png"});
+			// feedSrc.push({feedUrl:"http://kourdistoportocali.com/feeds/xml/latest.xml",  siteUrl: "kourdistoportocali.com", title: "Kourdisto Portokali", image: "img/kourdistoportokali.png"});
+			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/trelokouneli/YZEp", siteUrl: "trelokouneli.gr", title: "Trello Kouneli", image: "img/trellokouneli.png"});
+			// feedSrc.push({feedUrl:"http://www.antinews.gr/feed/", siteUrl: "antinews.gr", title: "Antinews", image: "img/antinews.png"});
+			// feedSrc.push({feedUrl:"http://feeds.feedburner.com/Voliotaki", siteUrl: "voliotaki.blogspot.gr", title: "Voliotaki", image: "img/voliotaki.jpg"});
+	
 			return feedSrc;
 		}
     }
