@@ -21,7 +21,7 @@ $stateProvider
   $urlRouterProvider.otherwise('/blogs');
 });
 
-rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, FeedService, pouchDB) {
+rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope, FeedService, TitleService, pouchDB) {
 	$ionicPlatform.ready(function() {
 		$ionicLoading.hide();
 
@@ -33,6 +33,7 @@ rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatf
 			console.log(blog);
 			var blogs = FeedService.getBlogs();
 			var blogId = arrayObjectIndexOf(blogs, blog);
+			$rootScope.title = TitleService.setTitle("mpla mpla");
 			$state.go('newsfeed', { blogId: blogId});
 		}
 		
@@ -49,8 +50,9 @@ rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatf
 
 });
 
-rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, TitleService) {
+rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope, TitleService) {
 	$ionicPlatform.ready(function() {
+		$scope.$rootScope = $rootScope;
 		$ionicLoading.hide();
 
 		$scope.toAbout = function(){
@@ -62,6 +64,7 @@ rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlat
 		}
 		
 		$scope.getTitle = function(){
+			$rootScope.title = TitleService.getTitle();
 			$scope.title = TitleService.getTitle();
 			console.log(TitleService.getTitle());
 			if($scope.title == null){
@@ -70,6 +73,7 @@ rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlat
 		}
 		
 		$scope.getTitle();
+		console.log($rootScope.title);
 	});
 
 });
@@ -203,7 +207,6 @@ rssApp.factory('TitleService', function(){
 			title = newTitle;
 		}
     }
-
 });
 
 rssApp.factory('FeedService',['$http',function($http){
