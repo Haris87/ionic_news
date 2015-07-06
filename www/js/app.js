@@ -1,7 +1,8 @@
 'use strict';
 
 var rssApp = angular.module('starter', ['ionic', 'ngCordova', 'pouchdb']);
-rssApp.run(function($ionicPlatform) {
+
+rssApp.run(function($ionicPlatform, $rootScope) {
   $ionicPlatform.ready(function() {
     if(window.cordova && window.cordova.plugins.Keyboard) {
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
@@ -9,6 +10,17 @@ rssApp.run(function($ionicPlatform) {
     if(window.StatusBar) {
       StatusBar.styleDefault();
     }
+
+    console.log(window.Connection);
+    if (window.Connection) {
+      $rootScope.$on('$cordovaNetwork:online', function(event, networkState) {
+        alert('online good sir');
+      })
+      $rootScope.$on('$cordovaNetwork:offline', function(event, networkState) {
+        alert('offline good sir');
+      })
+    }
+
   });
 })
 .config(function($stateProvider, $urlRouterProvider) {
@@ -21,8 +33,9 @@ $stateProvider
   $urlRouterProvider.otherwise('/blogs');
 });
 
-rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope, FeedService, TitleService, pouchDB) {
+rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope, $ionicPopup, NetworkService, FeedService, TitleService, pouchDB) {
 	$ionicPlatform.ready(function() {
+
 		$ionicLoading.hide();
 
 		$scope.init = function(){
@@ -132,9 +145,16 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 			$ionicLoading.show({
 				template: 'Loading feed...'
 			});
+
 			$scope.blogTitle = $scope.feedSrc[blogId].title;
 	        $http.get("http://ajax.googleapis.com/ajax/services/feed/load", { params: { "v": "1.0", "q": $scope.feedSrc[blogId].feedUrl, "num": "50" } })
 			.success(function(data, status, headers, config) {
+				
+				
+	        	if(res.data.responseData.feed.entries == [] || res.data.responseData.feed.entries == null){
+	        		alert("Please check your internet connection");
+	        	}
+
 				$scope.rssTitle = data.responseData.feed.title;
 				$scope.rssUrl = data.responseData.feed.feedUrl;
 				$scope.rssSiteUrl = data.responseData.feed.link;
@@ -177,7 +197,7 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 		
 		$scope.loadBrowserFeed = function(){  
 			$scope.blogTitle = $scope.feedSrc[blogId].title;
-	        FeedService.parseFeed($scope.feedSrc[blogId].feedUrl).then(function(res){
+	        FeedService.parseFeed($scope.feedSrc[blogId].feedUrl).then(function(res){	        	
 				$scope.rssTitle = res.data.responseData.feed.title;
 				$scope.rssUrl = res.data.responseData.feed.feedUrl;
 				$scope.rssSiteUrl = res.data.responseData.feed.link;
@@ -237,4 +257,58 @@ rssApp.factory('FeedService',['$http',function($http){
 			return feedSrc;
 		}
     }
+}]);
+
+rssApp.factory('NetworkService', ['$q', function($q) {
+    var Connection = window.Connection || {
+        'ETHERNET': 'ethernet',
+        'WIFI': 'wifi',
+        'CELL_2G': 'cell_2g',
+        'CELL_3G': 'cell_3g',
+        'CELL_4G': 'cell_4g',
+        'CELL': 'cell',
+        'EDGE': 'edge',
+        'UNKNOWN': 'unknown',
+        'NONE': 'none'
+    };
+
+    var loaded = false;
+    var connType = null;
+
+    return {
+        isOnline: function() {
+            var blnReturn = true;
+
+            switch (this.getStatus()) {
+                case Connection.NONE:
+                case Connection.UNKNOWN:
+                    blnReturn = false;
+                    break;
+            }
+
+            return blnReturn;
+        },
+        getStatus: function() {
+            if (connType) {
+                return connType.type;
+            }
+            if (typeof device !== 'undefined') {
+                if ((device.platform === "Android") && navigator && navigator.network && navigator.network.connection) {
+                    connType = navigator.network.connection || {
+                        type: 'UNKNOWN'
+                    };
+                } else {
+                    if ((device.platform === "iOS") && navigator && navigator.connection) {
+                        connType = navigator.connection || {
+                            type: 'UNKNOWN'
+                        };
+                    }
+                }
+            }
+            if (!connType) {
+                connType = { type: 'none'};
+            }
+            return connType.type;
+        }
+    };
 }]);

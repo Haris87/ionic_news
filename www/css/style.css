@@ -6,6 +6,27 @@
     white-space: initial;
 }
 
+@font-face {
+	font-family: TitleFont;
+	/*src: url(Vibur/Vibur-Regular.ttf);*/
+	src: url(Voluptate_demo.ttf);
+}
+
+@font-face {
+   font-family: TextFont;
+   src: url(Raleway/Raleway-ExtraLight.ttf);
+}
+
+.titleFont {
+	font-family: TitleFont;
+	font-size:1.5em;!important
+	font-weight:900;
+}
+
+body {
+	font-family: TextFont;
+}
+
 img {
 	max-width: 100%;
 	height: auto;
