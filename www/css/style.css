@@ -17,6 +17,10 @@
    src: url(Raleway/Raleway-ExtraLight.ttf);
 }
 
+.bar-light-gray{
+	background-color:#ccc;
+}
+
 .titleFont {
 	font-family: TitleFont;
 	font-size:1.5em;!important

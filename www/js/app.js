@@ -11,7 +11,6 @@ rssApp.run(function($ionicPlatform, $rootScope) {
       StatusBar.styleDefault();
     }
 
-    console.log(window.Connection);
     if (window.Connection) {
       $rootScope.$on('$cordovaNetwork:online', function(event, networkState) {
         alert('online good sir');
@@ -43,7 +42,6 @@ rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatf
 		}
 		
 		$scope.toNewsfeed = function(blog){
-			console.log(blog);
 			var blogs = FeedService.getBlogs();
 			var blogId = arrayObjectIndexOf(blogs, blog);
 			$rootScope.title = TitleService.setTitle("mpla mpla");
@@ -79,14 +77,12 @@ rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlat
 		$scope.getTitle = function(){
 			$rootScope.title = TitleService.getTitle();
 			$scope.title = TitleService.getTitle();
-			console.log(TitleService.getTitle());
 			if($scope.title == null){
 				$scope.title = "News Lite";
 			}
 		}
 		
 		$scope.getTitle();
-		console.log($rootScope.title);
 	});
 
 });
