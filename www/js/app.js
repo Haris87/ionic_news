@@ -154,7 +154,6 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 				$scope.$broadcast('scroll.refreshComplete');
 			})
 			.error(function(data, status, headers, config) {
-				alert(status);
 				$scope.loadBrowserFeed();
 				$scope.$broadcast('scroll.refreshComplete');
 				$ionicLoading.hide();
@@ -238,10 +237,6 @@ rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $i
 		}
 
 		$scope.covers = FeedService.getCovers(year, month, day);
-
-		// $scope.slideHasChanged = function(index){
-		// 	console.log($scope.covers[index].image);
-		// }
 	});
 });
 
