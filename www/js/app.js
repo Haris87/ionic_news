@@ -237,6 +237,7 @@ rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $i
 		}
 
 		$scope.covers = FeedService.getCovers(year, month, day);
+
 	});
 });
 
@@ -269,6 +270,10 @@ rssApp.factory('FeedService',['$http',function($http){
 			coverSrc.push({image: url+"/us/newyork_times.750.jpg", title: "New York Times"});
 			coverSrc.push({image: url+"/us/washington_post.750.jpg", title: "Washington Post"});
 			coverSrc.push({image: url+"/uk/the_times.750.jpg", title: "The Times"});
+			coverSrc.push({image: url+"/au/sydney_morning_herald.750.jpg", title: "The Sydney Morning Herald"});
+			coverSrc.push({image: url+"/de/faz.750.jpg", title: "Frankfurter Allgemeine Zeitung"});
+			coverSrc.push({image: url+"/asi/gulf_news.750.jpg", title: "Gulf News"});
+			coverSrc.push({image: url+"/fr/lemonde.750.jpg", title: "Le Monde"});
 			return coverSrc;
 		}
     }
