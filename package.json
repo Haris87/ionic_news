@@ -20,6 +20,10 @@
     "com.ionic.keyboard"
   ],
   "cordovaPlatforms": [
-    "android"
+    {
+      "platform": "android",
+      "version": "3.7.0",
+      "locator": "android@3.7.0"
+    }
   ]
 }

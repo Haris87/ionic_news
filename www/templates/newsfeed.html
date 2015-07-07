@@ -15,6 +15,7 @@
 
 	<!-- style="padding-top:10px;margin-bottom:25px;" -->
 	<ion-content ng-init="init()">
+		<!-- <pre>{{status}}</pre> -->
 		<ion-refresher pulling-text="Pull to refresh" on-refresh="init()"></ion-refresher>
 		<div class="list">
 			<a ng-repeat="entry in entries" class="item-text-wrap item-animate" ng-class="itemClass(entry)" ng-click="itemClick(entry)">

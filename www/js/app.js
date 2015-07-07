@@ -13,10 +13,10 @@ rssApp.run(function($ionicPlatform, $rootScope) {
 
     if (window.Connection) {
       $rootScope.$on('$cordovaNetwork:online', function(event, networkState) {
-        alert('online good sir');
+        //alert('online good sir');
       })
       $rootScope.$on('$cordovaNetwork:offline', function(event, networkState) {
-        alert('offline good sir');
+        //alert('offline good sir');
       })
     }
 
@@ -106,7 +106,7 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 		$ionicLoading.hide();
 
 		$scope.feedSrc = [];
-		
+		$scope.status = "empty";
 		var blogId = 0;
 		
 	    $scope.init = function() {
@@ -154,6 +154,7 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 				$scope.$broadcast('scroll.refreshComplete');
 			})
 			.error(function(data, status, headers, config) {
+				alert(status);
 				$scope.loadBrowserFeed();
 				$scope.$broadcast('scroll.refreshComplete');
 				$ionicLoading.hide();
@@ -196,55 +197,50 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 					$scope.$apply();
 				}, 1);
 	        }).catch(errorFunction);
-
-	        var errorFunction = function(){
-	        	setTimeout(function(){
-		        	if($scope.entries.length == 0){
-					    var errorPopup = $ionicPopup.show({
-						template: '<h1 style="text-align:center"><i class="ion-wifi"></i> Please check your internet connection.</h1>',
-						title: '<h1>Error!</h1>',
-						subTitle: 'Could not get RSS feed.',
-						scope: $scope,
-						buttons: [
-							{
-								text: '<b>OK</b>',
-								type: 'button-assertive'
-							}
-						]});
-		        		$ionicLoading.hide();
-		        	}
-	        	}, 3000);
-	        }
 	    }
+
+
+        var errorFunction = function(){
+        	setTimeout(function(){
+	        	if($scope.entries.length == 0){
+				    var errorPopup = $ionicPopup.show({
+					template: '<h1 style="text-align:center"><i class="ion-wifi"></i> Please check your internet connection.</h1>',
+					title: '<h1>Error!</h1>',
+					subTitle: 'Could not get RSS feed.',
+					scope: $scope,
+					buttons: [
+						{
+							text: '<b>OK</b>',
+							type: 'button-assertive'
+						}
+					]});
+	        		$ionicLoading.hide();
+	        	}
+        	}, 3000);
+        }
+
 	});
 });
 
-rssApp.controller("CoversController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $ionicSlideBoxDelegate, $timeout, FeedService) {
+rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $ionicLoading, $timeout, FeedService) {
 	$ionicPlatform.ready(function() {
-		var year = (new Date).toLocaleFormat("%Y");
-		var month = (new Date).toLocaleFormat("%m");
-		var day = (new Date).toLocaleFormat("%d");
 
-		//$scope.covers = FeedService.getCovers(year, month, day);
+		var myDate = new Date();
+		var year = myDate.getFullYear();
+		var month = myDate.getMonth() + 1;
+		if(month <= 9){
+		    month = '0'+month;
+		}
 
-		//$ionicSlideBoxDelegate.update();
+		var day= myDate.getDate();
+		if(day <= 9){
+		    day = '0'+day;
+		}
 
-		$scope.status = "LALALALALA"//$scope.covers;
-
-		//$scope.url = "http://img.kiosko.net/"+year+"/"+month+"/"+day;
-
-
-		// if(typeof $index != 'undefined'){
-		// 	$scope.title = $scope.covers[$index].title;
-		// } else {
-		// 	$scope.title = $scope.covers[0].title;
-		// }
+		$scope.covers = FeedService.getCovers(year, month, day);
 
 		// $scope.slideHasChanged = function(index){
-		// 	console.log(index);
-		// 	$scope.title = $scope.covers[index].title;
-		// 	$ionicSlideBoxDelegate.update();
-		// 	console.log($scope.title);
+		// 	console.log($scope.covers[index].image);
 		// }
 	});
 });

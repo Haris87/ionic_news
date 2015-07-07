@@ -23,6 +23,26 @@
 	font-weight:900;
 }
 
+/*-----------------Slide box ----------------*/
+
+.content-chill{
+	padding:0;
+}
+
+.img-center{
+	margin:0 auto;
+}
+
+.cover-box{
+	padding:2em;
+}
+
+.slider {
+  height: 100%;
+}
+
+/*-------------------Slide box end-----------------*/
+
 .subtitleFont {
 	font-family: TextFont;
 	font-size:1.5em;!important

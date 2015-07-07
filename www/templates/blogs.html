@@ -1,7 +1,6 @@
 
 <ion-view view-title="Blog List">
 <!-- style="padding-top:10px;margin-bottom:25px;" -->
-	<a href="slides">slides</a>
 	<ion-content ng-init="init()">
 		<div class="list">
 			<a ng-repeat="blog in blogs" class="item item-text-wrap item-icon-right item-thumbnail-left" ng-click="toNewsfeed(blog)">
@@ -14,35 +13,3 @@
 
 	</ion-content>
 </ion-view>
-
-
-
-<!-- 
-
-
-
-<ion-view title="">
-<ion-nav-bar align-title="center" class=" bar-positive">
-  <div class="buttons">
-    <div class="buttons">
-      <button class="button" ng-click="myGoBack()">
-            Back
-      </button>
-    </div>
-  </div>
-  <h1 class="title" >The title</h1>
-  <div class="buttons">
-    <button class=" button icon ion-log-out" ng-click="logout()"></button>
-  </div>
-</ion-nav-bar>
- <ion-content ng-controller="BlogCtrl" ng-init="init()">
- 
- <div class="list">
-  <div ng-repeat="entry in feed.entries" class="item" ng-click="browse(entry.link)">
-   <b>{{entry.title}}</b><br>
-   <img ng-src="{{entry.mediaGroups[0].contents[0].url}}">
-   <span ng-bind-html="entry.contentSnippet"></span>
-  </div>
- </div>
-    </ion-content>
-</ion-view> -->
