@@ -11,12 +11,11 @@ rssApp.run(function($ionicPlatform, $rootScope) {
       StatusBar.styleDefault();
     }
 
+    //event checking connectivity. not used.
     if (window.Connection) {
       $rootScope.$on('$cordovaNetwork:online', function(event, networkState) {
-        //alert('online good sir');
       })
       $rootScope.$on('$cordovaNetwork:offline', function(event, networkState) {
-        //alert('offline good sir');
       })
     }
 
@@ -24,24 +23,28 @@ rssApp.run(function($ionicPlatform, $rootScope) {
 })
 .config(function($stateProvider, $urlRouterProvider) {
 
+//match controllers to views
 $stateProvider           
 	.state('blogs', {name: 'blogs', url: '/blogs', templateUrl: 'templates/blogs.html', controller: 'BlogsController'})
     .state('newsfeed', {name: 'newsfeed', url: '/newsfeed/:blogId', templateUrl: 'templates/newsfeed.html', controller: 'FeedController'})
     .state('about', {name: 'about', url: '/about', templateUrl: 'templates/about.html', controller: 'AboutController'})
     .state('covers', {name: 'cover', url: '/covers', templateUrl: 'templates/covers.html', controller: 'CoversController'});
-  // if none of the above states are matched, use this as the fallback
+  //default state
   $urlRouterProvider.otherwise('/blogs');
 });
 
+//controller for news site list
 rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope, $ionicPopup, NetworkService, FeedService) {
 	$ionicPlatform.ready(function() {
-
 		$ionicLoading.hide();
 
+		//on initialization get all news sites
 		$scope.init = function(){
 			$scope.blogs = FeedService.getBlogs();
 		}
 		
+		//send the user to the specific feed requested, 
+		//pass id as parameter in the state url
 		$scope.toNewsfeed = function(blog){
 			var blogs = FeedService.getBlogs();
 			var blogId = arrayObjectIndexOf(blogs, blog);
@@ -49,6 +52,7 @@ rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatf
 			$state.go('newsfeed', { blogId: blogId});
 		}
 		
+		//array helper function
 		function arrayObjectIndexOf(arr, obj){
 			for(var i = 0; i < arr.length; i++){
 				if(angular.equals(arr[i], obj)){
@@ -62,29 +66,34 @@ rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatf
 
 });
 
+//controller for header
 rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope) {
 	$ionicPlatform.ready(function() {
 		$ionicLoading.hide();
 
+		//link to about page
 		$scope.toAbout = function(){
 			$state.go('about');
 		}
 		
+		//link to news site page
 		$scope.toBlogs = function(){
 			$state.go('blogs');
 		}
 
+		//link to covers page
 		$scope.toCovers = function(){
 			$state.go('covers');
 		}
 	});
-
 });
 
+//controller for about page
 rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatform, $ionicLoading) {
 	$ionicPlatform.ready(function() {
 		$ionicLoading.hide();
 
+		//service that reads a random quote about the press and loads it to teh view
 		$scope.getQuote = function(){
 			$http.get('http://www.iheartquotes.com/api/v1/random', { params: { "source":"news"}})
 			.success(function(data, status, headers, config) {
@@ -92,6 +101,7 @@ rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatf
 				$scope.quote = quote[0];
 			})
 			.error(function(data, status, headers, config) {
+				//if no connection, standard quote shown
 				$scope.quote = 	"The only qualities for real success in journalism are ratlike cunning, a "+
 								"plausible manner and a little literary ability.  The capacity to steal "+
 								"other people's ideas and phrases ... is also invaluable. "+
@@ -101,6 +111,7 @@ rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatf
 	});
 });
 
+//controller for rss feed page
 rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoading, $cordovaInAppBrowser, $stateParams, $ionicPlatform, $ionicPopup, FeedService) {
 	$ionicPlatform.ready(function() {
 		$ionicLoading.hide();
@@ -109,6 +120,7 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 		$scope.status = "empty";
 		var blogId = 0;
 		
+		//code runs on initialization
 	    $scope.init = function() {
 			blogId = $stateParams.blogId;
 			$scope.feedSrc = FeedService.getBlogs();
@@ -117,22 +129,27 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 			$scope.getFeed();
 	    }
 		
+		//classes for expanding and minimizing article objects
 		$scope.itemAvatar = "item item-avatar item-avatar-left item-icon-right";
 		$scope.itemNoImage = "item item-icon-right";
 
+		//function for expanding and minimizing article objects
 		$scope.itemClass = function(entry){
 			if(entry.expanded){
 				return $scope.itemNoImage;
 			}
-		
+			
+			//check if entry has image
 			if(entry.hasOwnProperty('mediaGroups')){
 				return $scope.itemAvatar;
 			} else {
 				return $scope.itemNoImage;
 			}
 		}
-			
+		
+		//function called to return feed for a news site to the view
 		$scope.getFeed = function(){
+			//show loading until feed is returned
 			$ionicLoading.show({
 				template: 'Loading feed...'
 			});
@@ -140,7 +157,7 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 			$scope.blogTitle = $scope.feedSrc[blogId].title;
 	        $http.get("http://ajax.googleapis.com/ajax/services/feed/load", { params: { "v": "1.0", "q": $scope.feedSrc[blogId].feedUrl, "num": "50" } })
 			.success(function(data, status, headers, config) {
-
+				//if parse feed is succesfull, display the information in the view
 				$scope.rssTitle = data.responseData.feed.title;
 				$scope.rssUrl = data.responseData.feed.feedUrl;
 				$scope.rssSiteUrl = data.responseData.feed.link;
@@ -154,12 +171,15 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 				$scope.$broadcast('scroll.refreshComplete');
 			})
 			.error(function(data, status, headers, config) {
-				$scope.loadBrowserFeed();
+				//$scope.loadBrowserFeed();
 				$scope.$broadcast('scroll.refreshComplete');
 				$ionicLoading.hide();
+				errorFunction;
 			});	
 		}
 		
+		//function called when user clicks the link icon in an article
+		//opens the full article in the inapp browser
 		$scope.browse = function(v) {
 			var options = {
 				location: 'no',
@@ -176,7 +196,8 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 			entry.expanded = !entry.expanded;
 		}
 
-
+		//code for debugging in browser
+		//uncomment line 174 to use
 		$scope.loadBrowserFeed = function(){  
 			$scope.entries = [];
 			$scope.blogTitle = $scope.feedSrc[blogId].title;
@@ -198,7 +219,8 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 	        }).catch(errorFunction);
 	    }
 
-
+	    //function to call when an error occurs
+	    //shows an alert message
         var errorFunction = function(){
         	setTimeout(function(){
 	        	if($scope.entries.length == 0){
@@ -221,9 +243,12 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 	});
 });
 
+//controller for covers page
 rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $ionicLoading, $timeout, FeedService) {
 	$ionicPlatform.ready(function() {
 
+		//get today's date
+		//fix month and day format for calling the cover service
 		var myDate = new Date();
 		var year = myDate.getFullYear();
 		var month = myDate.getMonth() + 1;
@@ -236,16 +261,20 @@ rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $i
 		    day = '0'+day;
 		}
 
+		//get today's newspaper covers from FeedService
 		$scope.covers = FeedService.getCovers(year, month, day);
 
 	});
 });
 
+//service for retrieving news information
 rssApp.factory('FeedService',['$http',function($http){
     return {
+    	//returns the given feed in json format
         parseFeed : function(url){
             return $http.jsonp('//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=50&callback=JSON_CALLBACK&q=' + encodeURIComponent(url));
         },
+        //returns a list of news sites
 		getBlogs : function(){
 			var feedSrc = [];
 			feedSrc.push({feedUrl:"http://feeds.washingtonpost.com/rss/world", siteUrl: "washingtonpost.com", title: "The Washington Post", image: "img/logos/washington.png"});
@@ -262,6 +291,7 @@ rssApp.factory('FeedService',['$http',function($http){
 			feedSrc.push({feedUrl:"http://news.yahoo.com/rss/", siteUrl: "new.yahoo.com", title: "Yahoo! News", image: "img/logos/yahoo.jpeg"});
 			return feedSrc;
 		},
+		//returns a list of newspaper fronpages
 		getCovers : function(year, month, day){
 			var coverSrc = [];
 			var url = "http://img.kiosko.net/"+year+"/"+month+"/"+day;
@@ -279,6 +309,7 @@ rssApp.factory('FeedService',['$http',function($http){
     }
 }]);
 
+//service for checking internet conectivity
 rssApp.factory('NetworkService', ['$q', function($q) {
     var Connection = window.Connection || {
         'ETHERNET': 'ethernet',
