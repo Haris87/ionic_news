@@ -263,6 +263,11 @@ rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $i
 
 		//get today's newspaper covers from FeedService
 		$scope.covers = FeedService.getCovers(year, month, day);
+		$scope.title = $scope.covers[0].title;
+		//when slide is changed, change the title
+		$scope.slideHasChanged = function($index){
+			$scope.title = $scope.covers[$index].title;
+		}
 
 	});
 });
@@ -295,10 +300,10 @@ rssApp.factory('FeedService',['$http',function($http){
 		getCovers : function(year, month, day){
 			var coverSrc = [];
 			var url = "http://img.kiosko.net/"+year+"/"+month+"/"+day;
-			coverSrc.push({image: url+"/us/wsj.750.jpg", title: "Wall Street Journal"});
+			coverSrc.push({image: url+"/us/wsj.750.jpg", title: "The Wall Street Journal"});
 			coverSrc.push({image: url+"/us/usa_today.750.jpg", title: "USA Today"});
-			coverSrc.push({image: url+"/us/newyork_times.750.jpg", title: "New York Times"});
-			coverSrc.push({image: url+"/us/washington_post.750.jpg", title: "Washington Post"});
+			coverSrc.push({image: url+"/us/newyork_times.750.jpg", title: "The New York Times"});
+			coverSrc.push({image: url+"/us/washington_post.750.jpg", title: "The Washington Post"});
 			coverSrc.push({image: url+"/uk/the_times.750.jpg", title: "The Times"});
 			coverSrc.push({image: url+"/au/sydney_morning_herald.750.jpg", title: "The Sydney Morning Herald"});
 			coverSrc.push({image: url+"/de/faz.750.jpg", title: "Frankfurter Allgemeine Zeitung"});
@@ -309,7 +314,7 @@ rssApp.factory('FeedService',['$http',function($http){
     }
 }]);
 
-//service for checking internet conectivity
+//service for checking internet conectivity. not used.
 rssApp.factory('NetworkService', ['$q', function($q) {
     var Connection = window.Connection || {
         'ETHERNET': 'ethernet',
@@ -363,3 +368,16 @@ rssApp.factory('NetworkService', ['$q', function($q) {
         }
     };
 }]);
+
+//directive for showing default image if img src 404s
+rssApp.directive('errSrc', function() {
+  return {
+    link: function(scope, element, attrs) {
+      element.bind('error', function() {
+        if (attrs.src != attrs.errSrc) {
+          attrs.$set('src', attrs.errSrc);
+        }
+      });
+    }
+  }
+});

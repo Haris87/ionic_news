@@ -1,9 +1,12 @@
-<ion-view view-title="Covers slider">
-<ion-content class="content-chill">
-  <ion-slide-box show-pager="false" does-continue="true">
-    <ion-slide ng-repeat="cover in covers">
-      <div class="cover-box"><img ng-src="{{cover.image}}" class="img-responsive img-center"/></div>
-    </ion-slide>
-  </ion-slide-box>
-</ion-content>
+<ion-view view-title="{{title}}">
+	<ion-nav-bar align-title="center" class="bar-dark">
+		<h1 class="title subtitleFont">{{title}}</h1>
+	</ion-nav-bar>	
+	<ion-content class="content-chill">
+	  <ion-slide-box on-slide-changed="slideHasChanged($index)" show-pager="false" does-continue="true">
+	    <ion-slide ng-repeat="cover in covers">
+	      <div class="cover-box"><img ng-src="{{cover.image}}" err-src="img/404.png" class="img-responsive img-center"/></div>
+	    </ion-slide>
+	  </ion-slide-box>
+	</ion-content>
 </ion-view>
