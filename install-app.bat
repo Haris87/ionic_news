@@ -1,1 +1,0 @@
-ionic build android & adb uninstall com.ionicframework.examplerssreader916017 & adb install platforms\android\build\outputs\apk\android-debug.apk
