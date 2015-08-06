@@ -279,12 +279,12 @@ rssApp.controller("CoversController", function($http, $scope, $state, $timeout, 
 		}
 
 		$scope.covers = FeedService.getCovers(year, month, day);
-		$scope.title = $scope.covers[0].title;	
+		$scope.$parent.title = $scope.covers[0].title;	
 		//when slide is changed, change the title
 		$scope.slideHasChanged = function($index){
-			$scope.title = $scope.covers[$index].title;
+			$scope.$parent.title = $scope.covers[$index].title;
 		}
-
+		
 	});
 });
 
@@ -396,4 +396,12 @@ rssApp.directive('errSrc', function() {
       });
     }
   }
+});
+
+rssApp.directive("title", function() {
+    return {
+        scope: {
+            title: "="
+        }
+    };
 });

@@ -1,6 +1,6 @@
-
 <ion-view view-title="Blog List">
-	<ion-content ng-init="init()">
+	<div ng-include src="'templates/header.html'"></div>
+	<ion-content has-header="true" class="has-header" ng-init="init()">
 		<div class="list">
 			<a ng-repeat="blog in blogs" class="item item-text-wrap item-icon-right item-thumbnail-left" ng-click="toNewsfeed(blog)">
 				<img ng-src="{{blog.image}}"/>
@@ -9,6 +9,5 @@
 				<i class="icon ion-chevron-right"></i>
 			</a>
 		</div>
-
 	</ion-content>
 </ion-view>

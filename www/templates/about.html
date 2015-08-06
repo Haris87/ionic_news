@@ -1,5 +1,6 @@
 <ion-view view-title="About">
-	<ion-content style="padding-top:10px;" ng-init="getQuote()">
+	<div ng-include src="'templates/header.html'"></div>
+	<ion-content style="padding-top:10px;" has-header="true" class="has-header" ng-init="getQuote()">
 		<div class="list card">
 			<div class="item item-body">
 				<blockquote ng-bind-html="quote"></blockquote>

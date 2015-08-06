@@ -1,8 +1,9 @@
 <ion-view view-title="{{title}}">
-	<ion-nav-bar align-title="center" class="bar-dark">
+	<div ng-include src="'templates/header.html'"></div>
+	<ion-nav-bar align-title="center" has-header="true" class="bar-dark bar-subheader has-header">
 		<h1 class="title subtitleFont">{{title}}</h1>
-	</ion-nav-bar>	
-	<ion-content ng-init="init()">
+	</ion-nav-bar>
+	<ion-content has-header="true" has-subheader="true" class="has-header has-subheader" ng-init="init()">
 		<ion-refresher pulling-text="Pull to refresh" on-refresh="init()"></ion-refresher>
 		<div class="list">
 			<a ng-repeat="entry in entries" class="item-text-wrap item-animate" ng-class="itemClass(entry)" ng-click="itemClick(entry)">

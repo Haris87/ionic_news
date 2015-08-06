@@ -1,8 +1,9 @@
 <ion-view view-title="{{title}}">
-	<ion-nav-bar align-title="center" class="bar-dark">
+	<div ng-include src="'templates/header.html'"></div>
+	<ion-nav-bar align-title="center" has-header="true" class="bar-dark bar-subheader has-header">
 		<h1 class="title subtitleFont">{{title}}</h1>
-	</ion-nav-bar>	
-	<ion-content class="content-chill">
+	</ion-nav-bar>
+	<ion-content has-header="true" has-subheader="true" class="content-chill has-header has-subheader">
 	  <ion-refresher pulling-text="Pull to refresh" on-refresh="init()"></ion-refresher>
 	  <ion-slide-box on-slide-changed="slideHasChanged($index)" show-pager="false" does-continue="true">
 	    <ion-slide ng-repeat="cover in covers">
