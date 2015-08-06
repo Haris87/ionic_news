@@ -3,9 +3,12 @@
 		<h1 class="title subtitleFont">{{title}}</h1>
 	</ion-nav-bar>	
 	<ion-content class="content-chill">
+	  <ion-refresher pulling-text="Pull to refresh" on-refresh="init()"></ion-refresher>
 	  <ion-slide-box on-slide-changed="slideHasChanged($index)" show-pager="false" does-continue="true">
 	    <ion-slide ng-repeat="cover in covers">
-	      <div class="cover-box"><img ng-src="{{cover.image}}" err-src="img/404.png" class="img-responsive img-center"/></div>
+	      <div class="cover-box">
+	      	<img ng-src="{{cover.image}}" err-src="img/404.png" class="img-responsive img-center"/>
+	      </div>
 	    </ion-slide>
 	  </ion-slide-box>
 	</ion-content>

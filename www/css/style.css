@@ -44,14 +44,14 @@
 
 /*-------------------Slide box end-----------------*/
 
+.clear{
+	clear:both;
+}
+
 .subtitleFont {
 	font-family: TextFont;
 	font-size:1.5em;!important
 	font-weight:900;
-}
-
-.bar-header{
-	position: fixed;
 }
 
 .bar-lightgray {
@@ -85,7 +85,8 @@ h6 {
 }
 
 .view{
-	margin:35px 0;
+	position: absolute;
+    top: 35px;
 }
 
 .animate-show {

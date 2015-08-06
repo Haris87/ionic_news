@@ -28,7 +28,7 @@ $stateProvider
 	.state('blogs', {name: 'blogs', url: '/blogs', templateUrl: 'templates/blogs.html', controller: 'BlogsController'})
     .state('newsfeed', {name: 'newsfeed', url: '/newsfeed/:blogId', templateUrl: 'templates/newsfeed.html', controller: 'FeedController'})
     .state('about', {name: 'about', url: '/about', templateUrl: 'templates/about.html', controller: 'AboutController'})
-    .state('covers', {name: 'cover', url: '/covers', templateUrl: 'templates/covers.html', controller: 'CoversController'});
+    .state('covers', {name: 'cover', url: '/covers', templateUrl: 'templates/covers.html', controller: 'CoversController', cache: 'false'});
   //default state
   $urlRouterProvider.otherwise('/blogs');
 });
@@ -244,7 +244,7 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 });
 
 //controller for covers page
-rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $ionicLoading, $timeout, FeedService) {
+rssApp.controller("CoversController", function($http, $scope, $state, $timeout, $ionicPlatform, $ionicLoading, $ionicSlideBoxDelegate, FeedService) {
 	$ionicPlatform.ready(function() {
 
 		//get today's date
@@ -261,9 +261,25 @@ rssApp.controller("CoversController", function($http, $scope, $ionicPlatform, $i
 		    day = '0'+day;
 		}
 
-		//get today's newspaper covers from FeedService
+		$scope.init = function(){
+			//get today's newspaper covers from FeedService
+			// $scope.covers = FeedService.getCovers(year, month, day);
+			// $timeout(function(){
+			// 	$scope.$broadcast('scroll.refreshComplete');
+			// 	$scope.$apply();
+			// },2000);
+			$scope.covers = FeedService.getCovers(year, month, day);
+			$timeout(function(){
+				$scope.covers = FeedService.getCovers(year, month, day);
+				$scope.$broadcast('scroll.refreshComplete');
+				$state.transitionTo('covers');
+				$ionicSlideBoxDelegate.update();
+				$scope.$apply();
+			},2000);
+		}
+
 		$scope.covers = FeedService.getCovers(year, month, day);
-		$scope.title = $scope.covers[0].title;
+		$scope.title = $scope.covers[0].title;	
 		//when slide is changed, change the title
 		$scope.slideHasChanged = function($index){
 			$scope.title = $scope.covers[$index].title;
