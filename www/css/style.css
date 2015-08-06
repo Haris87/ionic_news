@@ -50,6 +50,10 @@
 	font-weight:900;
 }
 
+.bar-header{
+	position: fixed;
+}
+
 .bar-lightgray {
 	background-color: #ccc;
 }
@@ -78,6 +82,10 @@ p {
 
 h6 {
 	font-size: 0.5em;
+}
+
+.view{
+	margin:35px 0;
 }
 
 .animate-show {
