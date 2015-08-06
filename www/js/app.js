@@ -36,13 +36,11 @@ $stateProvider
 //controller for news site list
 rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope, $ionicPopup, NetworkService, FeedService) {
 	$ionicPlatform.ready(function() {
-		$ionicLoading.hide();
-
 		//on initialization get all news sites
 		$scope.init = function(){
 			$scope.blogs = FeedService.getBlogs();
 		}
-		
+
 		//send the user to the specific feed requested, 
 		//pass id as parameter in the state url
 		$scope.toNewsfeed = function(blog){
@@ -61,15 +59,12 @@ rssApp.controller("BlogsController", function($http, $state, $scope, $ionicPlatf
 			};
 			return -1;
 		}
-
 	});
-
 });
 
 //controller for header
 rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlatform, $ionicLoading, $rootScope) {
 	$ionicPlatform.ready(function() {
-		$ionicLoading.hide();
 
 		//link to about page
 		$scope.toAbout = function(){
@@ -91,7 +86,6 @@ rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlat
 //controller for about page
 rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatform, $ionicLoading) {
 	$ionicPlatform.ready(function() {
-		$ionicLoading.hide();
 
 		//service that reads a random quote about the press and loads it to teh view
 		$scope.getQuote = function(){
@@ -112,14 +106,22 @@ rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatf
 });
 
 //controller for rss feed page
-rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoading, $cordovaInAppBrowser, $stateParams, $ionicPlatform, $ionicPopup, FeedService) {
+rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoading, $cordovaInAppBrowser, $cordovaNetwork, CordovaNetwork, $rootScope, $stateParams, $ionicPlatform, $ionicPopup, NetworkService, FeedService) {
 	$ionicPlatform.ready(function() {
-		$ionicLoading.hide();
 
 		$scope.feedSrc = [];
-		$scope.status = "empty";
 		var blogId = 0;
 		
+		$scope.checkConnection = function(){
+		  // CordovaNetwork.isOnline().then(function(isConnected) {
+		  //   alert(isConnected);
+		  // }).catch(function(err){
+		  //   alert(err);
+		  // });
+
+		  // $scope.connection = navigator.onLine;
+		}
+
 		//code runs on initialization
 	    $scope.init = function() {
 			blogId = $stateParams.blogId;
@@ -150,13 +152,11 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 		//function called to return feed for a news site to the view
 		$scope.getFeed = function(){
 			//show loading until feed is returned
-			$ionicLoading.show({
-				template: 'Loading feed...'
-			});
-
+			$scope.loading = true;
 			$scope.blogTitle = $scope.feedSrc[blogId].title;
 	        $http.get("http://ajax.googleapis.com/ajax/services/feed/load", { params: { "v": "1.0", "q": $scope.feedSrc[blogId].feedUrl, "num": "50" } })
 			.success(function(data, status, headers, config) {
+				$scope.loading = false;
 				//if parse feed is succesfull, display the information in the view
 				$scope.rssTitle = data.responseData.feed.title;
 				$scope.rssUrl = data.responseData.feed.feedUrl;
@@ -167,13 +167,11 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 					$scope.entries[i].text = "";
 					$scope.entries[i].slideDown = true;
 				}
-				$ionicLoading.hide();
 				$scope.$broadcast('scroll.refreshComplete');
 			})
 			.error(function(data, status, headers, config) {
-				//$scope.loadBrowserFeed();
+				$scope.loading = false;
 				$scope.$broadcast('scroll.refreshComplete');
-				$ionicLoading.hide();
 				errorFunction;
 			});	
 		}
@@ -196,55 +194,17 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 			entry.expanded = !entry.expanded;
 		}
 
-		//code for debugging in browser
-		//uncomment line 174 to use
-		$scope.loadBrowserFeed = function(){  
-			$scope.entries = [];
-			$scope.blogTitle = $scope.feedSrc[blogId].title;
-	        FeedService.parseFeed($scope.feedSrc[blogId].feedUrl)
-	        .then(function(res){
-				$scope.rssTitle = res.data.responseData.feed.title;
-				$scope.rssUrl = res.data.responseData.feed.feedUrl;
-				$scope.rssSiteUrl = res.data.responseData.feed.link;
-				$scope.entries = res.data.responseData.feed.entries;
-				
-				for(var i=0; i<$scope.entries.length; i++){
-					$scope.entries[i].text = "";
-					$scope.entries[i].slideDown = true;
-				}
-				$scope.$broadcast('scroll.refreshComplete');
-				$timeout(function(){
-					$scope.$apply();
-				}, 1);
-	        }).catch(errorFunction);
-	    }
-
 	    //function to call when an error occurs
 	    //shows an alert message
         var errorFunction = function(){
-        	setTimeout(function(){
-	        	if($scope.entries.length == 0){
-				    var errorPopup = $ionicPopup.show({
-					template: '<h1 style="text-align:center"><i class="ion-wifi"></i> Please check your internet connection.</h1>',
-					title: '<h1>Error!</h1>',
-					subTitle: 'Could not get RSS feed.',
-					scope: $scope,
-					buttons: [
-						{
-							text: '<b>OK</b>',
-							type: 'button-assertive'
-						}
-					]});
-	        		$ionicLoading.hide();
-	        	}
-        	}, 3000);
+        	//$scope.checkConnection();
         }
 
 	});
 });
 
 //controller for covers page
-rssApp.controller("CoversController", function($http, $scope, $state, $timeout, $ionicPlatform, $ionicLoading, $ionicSlideBoxDelegate, FeedService) {
+rssApp.controller("CoversController", function($http, $scope, $state, $timeout, $ionicPlatform, $ionicLoading, $ionicSlideBoxDelegate, $ionicPopup, NetworkService, FeedService) {
 	$ionicPlatform.ready(function() {
 
 		//get today's date
@@ -261,13 +221,19 @@ rssApp.controller("CoversController", function($http, $scope, $state, $timeout, 
 		    day = '0'+day;
 		}
 
+		$scope.checkConnection = function(){
+			// var con = NetworkService.isOnline();
+			// if(con !== null){
+			// 	if(con == false){
+			// 		var alertPopup = $ionicPopup.alert({
+			// 			title: 'Internet Connection',
+			// 			template: 'Please check your internet connection.'
+			// 		});
+			// 	}
+			// }
+		}
+
 		$scope.init = function(){
-			//get today's newspaper covers from FeedService
-			// $scope.covers = FeedService.getCovers(year, month, day);
-			// $timeout(function(){
-			// 	$scope.$broadcast('scroll.refreshComplete');
-			// 	$scope.$apply();
-			// },2000);
 			$scope.covers = FeedService.getCovers(year, month, day);
 			$timeout(function(){
 				$scope.covers = FeedService.getCovers(year, month, day);
@@ -332,55 +298,19 @@ rssApp.factory('FeedService',['$http',function($http){
 
 //service for checking internet conectivity. not used.
 rssApp.factory('NetworkService', ['$q', function($q) {
-    var Connection = window.Connection || {
-        'ETHERNET': 'ethernet',
-        'WIFI': 'wifi',
-        'CELL_2G': 'cell_2g',
-        'CELL_3G': 'cell_3g',
-        'CELL_4G': 'cell_4g',
-        'CELL': 'cell',
-        'EDGE': 'edge',
-        'UNKNOWN': 'unknown',
-        'NONE': 'none'
-    };
-
-    var loaded = false;
-    var connType = null;
-
     return {
         isOnline: function() {
-            var blnReturn = true;
-
-            switch (this.getStatus()) {
-                case Connection.NONE:
-                case Connection.UNKNOWN:
-                    blnReturn = false;
-                    break;
-            }
-
-            return blnReturn;
-        },
-        getStatus: function() {
-            if (connType) {
-                return connType.type;
-            }
-            if (typeof device !== 'undefined') {
-                if ((device.platform === "Android") && navigator && navigator.network && navigator.network.connection) {
-                    connType = navigator.network.connection || {
-                        type: 'UNKNOWN'
-                    };
-                } else {
-                    if ((device.platform === "iOS") && navigator && navigator.connection) {
-                        connType = navigator.connection || {
-                            type: 'UNKNOWN'
-                        };
-                    }
-                }
-            }
-            if (!connType) {
-                connType = { type: 'none'};
-            }
-            return connType.type;
+        	if(navigator){
+        		if(navigator.onLine){
+        			return true;
+        		} else if(!navigator.onLine){
+        			return false;
+        		} else {
+        			return null;
+        		}
+        	} else {
+        		return null;
+        	}
         }
     };
 }]);
@@ -398,10 +328,49 @@ rssApp.directive('errSrc', function() {
   }
 });
 
-rssApp.directive("title", function() {
-    return {
-        scope: {
-            title: "="
+
+rssApp.service('CordovaNetwork', ['$ionicPlatform', '$q', function($ionicPlatform, $q) {
+  // Get Cordova's global Connection object or emulate a smilar one
+  var Connection = window.Connection || {
+    "CELL"     : "cellular",
+    "CELL_2G"  : "2g",
+    "CELL_3G"  : "3g",
+    "CELL_4G"  : "4g",
+    "ETHERNET" : "ethernet",
+    "NONE"     : "none",
+    "UNKNOWN"  : "unknown",
+    "WIFI"     : "wifi"
+  };
+
+  var asyncGetConnection = function () {
+    var q = $q.defer();
+    $ionicPlatform.ready(function () {
+      if(navigator.connection) {
+        q.resolve(navigator.connection);
+      } else {
+        q.reject('navigator.connection is not defined');
+      }
+    });
+    return q.promise;
+  };
+
+  return {
+    isOnline: function () {
+      return asyncGetConnection().then(function(networkConnection) {
+        var isConnected = false;
+
+        switch (networkConnection.type) {
+          case Connection.ETHERNET:
+          case Connection.WIFI:
+          case Connection.CELL_2G:
+          case Connection.CELL_3G:
+          case Connection.CELL_4G:
+          case Connection.CELL:
+            isConnected = true;
+            break;
         }
-    };
-});
+        return isConnected;
+      });
+    }
+  };
+}]);

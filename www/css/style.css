@@ -84,9 +84,9 @@ h6 {
 	font-size: 0.5em;
 }
 
-.view{
-/*	position: absolute;
-    top: 35px;*/
+.spinner{
+	width: 32px;
+	margin: 20px auto;
 }
 
 .animate-show {

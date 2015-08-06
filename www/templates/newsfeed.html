@@ -5,7 +5,13 @@
 	</ion-nav-bar>
 	<ion-content has-header="true" has-subheader="true" class="has-header has-subheader" ng-init="init()">
 		<ion-refresher pulling-text="Pull to refresh" on-refresh="init()"></ion-refresher>
+		<!-- <div class="spinner" ng-show="loading">
+			<ion-spinner icon="android">
+			</ion-spinner>
+		</div> -->
+
 		<div class="list">
+		<!-- <pre class="item item-text-wrap item-animate">{{connection}}</pre>-->
 			<a ng-repeat="entry in entries" class="item-text-wrap item-animate" ng-class="itemClass(entry)" ng-click="itemClick(entry)">
 				<img ng-show="!entry.expanded" ng-src="{{entry.mediaGroups[0].contents[1].url || entry.mediaGroups[0].contents[0].url}}"/>
 				<i class="icon ion-link" ng-click="browse(entry.link)"></i>
