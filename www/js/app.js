@@ -3,23 +3,15 @@
 var rssApp = angular.module('starter', ['ionic', 'ngCordova']);
 
 rssApp.run(function($ionicPlatform, $rootScope) {
-  $ionicPlatform.ready(function() {
-    if(window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-    }
-    if(window.StatusBar) {
-      StatusBar.styleDefault();
-    }
+	$ionicPlatform.ready(function() {
+		if(window.cordova && window.cordova.plugins.Keyboard) {
+			cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+		}
 
-    //event checking connectivity. not used.
-    if (window.Connection) {
-      $rootScope.$on('$cordovaNetwork:online', function(event, networkState) {
-      })
-      $rootScope.$on('$cordovaNetwork:offline', function(event, networkState) {
-      })
-    }
-
-  });
+		if(window.StatusBar) {
+			StatusBar.styleDefault();
+		}
+	});
 })
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -87,6 +79,12 @@ rssApp.controller("HeaderController", function($http, $state, $scope, $ionicPlat
 rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatform, $ionicLoading) {
 	$ionicPlatform.ready(function() {
 
+		$scope.brand = {};
+		$scope.brand.name = "Goblin Apps";
+		$scope.brand.info = "info@goblin-apps.com";
+		$scope.brand.link = "https://goblin-apps.com";
+		$scope.brand.image = "img/goblin.gif";
+
 		//service that reads a random quote about the press and loads it to teh view
 		$scope.getQuote = function(){
 			$http.get('http://www.iheartquotes.com/api/v1/random', { params: { "source":"news"}})
@@ -106,22 +104,12 @@ rssApp.controller("AboutController", function($http, $state, $scope, $ionicPlatf
 });
 
 //controller for rss feed page
-rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoading, $cordovaInAppBrowser, $cordovaNetwork, CordovaNetwork, $rootScope, $stateParams, $ionicPlatform, $ionicPopup, NetworkService, FeedService) {
+rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoading, $cordovaInAppBrowser, $cordovaNetwork, $rootScope, $stateParams, $ionicPlatform, $ionicPopup, NetworkService, FeedService) {
 	$ionicPlatform.ready(function() {
 
 		$scope.feedSrc = [];
 		var blogId = 0;
 		
-		$scope.checkConnection = function(){
-		  // CordovaNetwork.isOnline().then(function(isConnected) {
-		  //   alert(isConnected);
-		  // }).catch(function(err){
-		  //   alert(err);
-		  // });
-
-		  // $scope.connection = navigator.onLine;
-		}
-
 		//code runs on initialization
 	    $scope.init = function() {
 			blogId = $stateParams.blogId;
@@ -197,14 +185,13 @@ rssApp.controller("FeedController", function($http, $scope, $timeout, $ionicLoad
 	    //function to call when an error occurs
 	    //shows an alert message
         var errorFunction = function(){
-        	//$scope.checkConnection();
         }
 
 	});
 });
 
 //controller for covers page
-rssApp.controller("CoversController", function($http, $scope, $state, $timeout, $ionicPlatform, $ionicLoading, $ionicSlideBoxDelegate, $ionicPopup, NetworkService, FeedService) {
+rssApp.controller("CoversController", function($http, $scope, $state, $timeout, $ionicPlatform, $ionicLoading, $ionicSlideBoxDelegate, $ionicModal, $ionicPopup, NetworkService, FeedService) {
 	$ionicPlatform.ready(function() {
 
 		//get today's date
@@ -221,18 +208,6 @@ rssApp.controller("CoversController", function($http, $scope, $state, $timeout, 
 		    day = '0'+day;
 		}
 
-		$scope.checkConnection = function(){
-			// var con = NetworkService.isOnline();
-			// if(con !== null){
-			// 	if(con == false){
-			// 		var alertPopup = $ionicPopup.alert({
-			// 			title: 'Internet Connection',
-			// 			template: 'Please check your internet connection.'
-			// 		});
-			// 	}
-			// }
-		}
-
 		$scope.init = function(){
 			$scope.covers = FeedService.getCovers(year, month, day);
 			$timeout(function(){
@@ -243,6 +218,42 @@ rssApp.controller("CoversController", function($http, $scope, $state, $timeout, 
 				$scope.$apply();
 			},2000);
 		}
+
+		$scope.imageClick = function($index){
+			$scope.openModal();
+			$scope.selected = $scope.covers[$index];
+		}
+
+		$ionicModal.fromTemplateUrl('cover-modal.html', {
+			scope: $scope,
+			hardwareBackButtonClose: false,
+			animation: 'slide-in-up'
+		}).then(function(modal) {
+			$scope.modal = modal;
+		});
+		
+		$scope.openModal = function() {
+			$scope.modal.show();
+		};
+		
+		$scope.closeModal = function() {
+			$scope.modal.hide();
+		};
+
+		//Cleanup the modal when we're done with it!
+		$scope.$on('$destroy', function() {
+			$scope.modal.remove();
+		});
+
+		// Execute action on hide modal
+		$scope.$on('modal.hidden', function() {
+		// Execute action
+		});
+		
+		// Execute action on remove modal
+		$scope.$on('modal.removed', function() {
+		// Execute action
+		});
 
 		$scope.covers = FeedService.getCovers(year, month, day);
 		$scope.$parent.title = $scope.covers[0].title;	
@@ -327,50 +338,3 @@ rssApp.directive('errSrc', function() {
     }
   }
 });
-
-
-rssApp.service('CordovaNetwork', ['$ionicPlatform', '$q', function($ionicPlatform, $q) {
-  // Get Cordova's global Connection object or emulate a smilar one
-  var Connection = window.Connection || {
-    "CELL"     : "cellular",
-    "CELL_2G"  : "2g",
-    "CELL_3G"  : "3g",
-    "CELL_4G"  : "4g",
-    "ETHERNET" : "ethernet",
-    "NONE"     : "none",
-    "UNKNOWN"  : "unknown",
-    "WIFI"     : "wifi"
-  };
-
-  var asyncGetConnection = function () {
-    var q = $q.defer();
-    $ionicPlatform.ready(function () {
-      if(navigator.connection) {
-        q.resolve(navigator.connection);
-      } else {
-        q.reject('navigator.connection is not defined');
-      }
-    });
-    return q.promise;
-  };
-
-  return {
-    isOnline: function () {
-      return asyncGetConnection().then(function(networkConnection) {
-        var isConnected = false;
-
-        switch (networkConnection.type) {
-          case Connection.ETHERNET:
-          case Connection.WIFI:
-          case Connection.CELL_2G:
-          case Connection.CELL_3G:
-          case Connection.CELL_4G:
-          case Connection.CELL:
-            isConnected = true;
-            break;
-        }
-        return isConnected;
-      });
-    }
-  };
-}]);

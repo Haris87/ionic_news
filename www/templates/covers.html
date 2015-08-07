@@ -8,9 +8,25 @@
 	  <ion-slide-box on-slide-changed="slideHasChanged($index)" show-pager="false" does-continue="true">
 	    <ion-slide ng-repeat="cover in covers">
 	      <div class="cover-box">
-	      	<img ng-src="{{cover.image}}" err-src="img/404.png" class="img-responsive img-center"/>
+	      	<img ng-click="imageClick($index)" ng-src="{{cover.image}}" err-src="img/404.png" class="img-responsive img-center"/>
 	      </div>
 	    </ion-slide>
 	  </ion-slide-box>
 	</ion-content>
 </ion-view>
+
+<script id="cover-modal.html" type="text/ng-template">
+  <ion-modal-view>
+    <ion-header-bar class="bar-dark">
+      <h1 class="title subtitleFont">{{selected.title}}</h1>
+    </ion-header-bar>
+    <ion-content>
+		<ion-scroll zooming="true" direction="xy" style="width:500px;height:500px">
+		  <div style="width: 5000px; height: 5000px; background: url({{selected.image}}) repeat"></div>
+		 </ion-scroll>
+    </ion-content>
+    <ion-footer-bar align-title="left" ng-click="closeModal()" class="bar-positive">
+	  <h1 class="title">Back</h1>
+	</ion-footer-bar>
+  </ion-modal-view>
+</script>

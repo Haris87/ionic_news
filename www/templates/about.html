@@ -7,10 +7,10 @@
 				<img class="full-image" src="img/blogs-android.jpg">
 			</div>
 		</div>
-		<div class="bar bar-footer bar-energized item item-avatar item-avatar-left">
-			<img src="img/nein.jpg"/>
-			<h2>Bouchlis Charalampos</h2>
-			<p style="color:#666">mpouxlhs_xar@yahoo.gr</p>
-		</div>
 	</ion-content>
+	<a ng-href="{{brand.link}}" class="bar bar-footer bar-energized item item-thumbnail item-thumbnail-left">
+		<img ng-src="{{brand.image}}"/>
+		<h2>{{brand.name}}&reg;</h2>
+		<p style="color:#666">{{brand.info}}</p>
+	</a>
 </ion-view>

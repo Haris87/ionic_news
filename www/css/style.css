@@ -7,22 +7,20 @@
 }
 
 @font-face {
-	font-family: TitleFont;
-	/*src: url(Vibur/Vibur-Regular.ttf);*/
-	src: url(Voluptate_demo.ttf);
-}
-
-@font-face {
    font-family: TextFont;
    src: url(Raleway/Raleway-ExtraLight.ttf);
 }
 
-.titleFont {
-	font-family: TitleFont;
-	font-size:1.5em;!important
-	font-weight:900;
+@font-face {
+	font-family: WitCLFont;
+	src: url(wolf_in_the_city/Wolf_in_the_City_Light.ttf);
 }
 
+.titleFont {
+	font-family: WitCLFont;
+	font-size:2.2em !important;
+	font-weight:100 !important;
+}
 
 /*-----------------Slide box ----------------*/
 
@@ -125,6 +123,13 @@ ion-content {
 	-o-transition: -o-transform 0.26s ease;
 	-ms-transition: -ms-transform 0.26s ease;
 	transition: transform 0.26s ease;
+}
+
+/*----------------- footer ----------------*/
+
+a.bar-footer{
+	position:absolute;
+	bottom:0px;
 }
 
 blockquote {
