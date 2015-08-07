@@ -1,7 +1,7 @@
 {
-  "name": "NewsLite",
+  "name": "NewsGoblin",
   "version": "1.0.0",
-  "description": "News Lite: A light Android App for reading the news.",
+  "description": "News Goblin: A light Android App for reading the news.",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^1.3.3",
